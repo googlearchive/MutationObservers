@@ -80,8 +80,8 @@
       // observer's options with options.
       var registration;
       for (var i = 0; i < registrations.length; i++) {
-        if (registrations[i].observer === this) {
-          registration = registrations[i];
+        registration = registrations[i];
+        if (registration.observer === this) {
           registration.removeListeners();
           registration.options = options;
           break;
