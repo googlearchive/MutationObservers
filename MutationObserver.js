@@ -8,6 +8,78 @@
 
   var registrationsTable = new SideTable('registrations');
 
+  // We use setImmediate or postMessage for our future callback.
+  var setImmediate = window.msSetImmediate;
+
+  // Use post message to emulate setImmediate.
+  if (!setImmediate) {
+    var setImmediateQueue = [];
+    var sentinel = String(Math.random());
+    window.addEventListener('message', function(e) {
+      if (e.data === sentinel) {
+        var queue = setImmediateQueue;
+        setImmediateQueue = [];
+        queue.forEach(function(func) {
+          func();
+        });
+      }
+    });
+    setImmediate = function(func) {
+      setImmediateQueue.push(func);
+      window.postMessage(sentinel, '*');
+    };
+  }
+
+  // This is used to ensure that we never schedule 2 callas to setImmediate
+  var isScheduled = false;
+
+  // Keep track of observers that needs to be notified next time.
+  var scheduledObservers = [];
+
+  /**
+   * Schedules |dispatchCallback| to be called in the future.
+   * @param {MutationObserver} observer
+   */
+  function scheduleCallback(observer) {
+    scheduledObservers.push(observer);
+    if (!isScheduled) {
+      isScheduled = true;
+      setImmediate(dispatchCallbacks);
+    }
+  }
+
+  function dispatchCallbacks() {
+    // http://dom.spec.whatwg.org/#mutation-observers
+
+    isScheduled = false; // Used to allow a new setImmediate call above.
+
+    var observers = scheduledObservers;
+    scheduledObservers = [];
+    // Sort observers based on their creation UID (incremental).
+    observers.sort(function(o1, o2) {
+      return o1.uid_ - o2.uid_;
+    });
+
+    var anyNonEmpty = false;
+    observers.forEach(function(observer) {
+
+      // 2.1, 2.2
+      var queue = observer.takeRecords();
+      // 2.3. Remove all transient registered observers whose observer is mo.
+      // TODO(arv): Implement
+
+      // 2.4
+      if (queue.length) {
+        observer.callback_(queue, observer);
+        anyNonEmpty = true;
+      }
+    });
+
+    // 3.
+    if (anyNonEmpty)
+      dispatchCallbacks();
+  }
+
   /**
    * This function is used for the "For each registered observer observer (with
    * observer's options as options) in target's list of registered observers,
@@ -41,6 +113,8 @@
     }
   }
 
+  var uidCounter = 0;
+
   /**
    * The class that maps to the DOM MutationObserver interface.
    * @param {Function} callback.
@@ -50,6 +124,7 @@
     this.callback_ = callback;
     this.nodes_ = [];
     this.records_ = [];
+    this.uid_ = ++uidCounter;
   }
 
   JsMutationObserver.prototype = {
@@ -80,8 +155,8 @@
       // observer's options with options.
       var registration;
       for (var i = 0; i < registrations.length; i++) {
-        registration = registrations[i];
-        if (registration.observer === this) {
+        if (registrations[i].observer === this) {
+          registration = registrations[i];
           registration.removeListeners();
           registration.options = options;
           break;
@@ -173,6 +248,8 @@
           records[length - 1] = record;
           return;
         }
+      } else {
+        scheduleCallback(this.observer);
       }
 
       records[length] = record;
