@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+Copyright 2012 The Toolkitchen Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../third_party/mocha/mocha.css">
+<script src="../../third_party/expect.js/expect.js"></script>
+<script src="../../third_party/mocha/mocha.js"></script>
+<script src="../../ShadowDOM/sidetable.js"></script>
+<script src="../MutationObserver.js"></script>
+
+<script>mocha.setup('tdd')</script>
+<script>
+
+function expectRecord(record, expected) {
+  expect(record.type).to.be(expected.type === undefined ? null : expected.type);
+  expect(record.target).to.be(expected.target === undefined ? null : expected.target);
+  // expect(record.addedNodes).to.be(expected.addedNodes === undefined ? null : expected.addedNodes);
+  // expect(record.removedNodes).to.be(expected.removedNodes === undefined ? null : expected.removedNodes);
+  expect(record.previousSibling).to.be(expected.previousSibling === undefined ? null : expected.previousSibling);
+  expect(record.nextSibling).to.be(expected.nextSibling === undefined ? null : expected.nextSibling);
+  expect(record.attributeName).to.be(expected.attributeName === undefined ? null : expected.attributeName);
+  expect(record.attributeNamespace).to.be(expected.attributeNamespace === undefined ? null : expected.attributeNamespace);
+  expect(record.oldValue).to.be(expected.oldValue === undefined ? null : expected.oldValue);
+}
+
+if (/native/.test(location.search))
+  JsMutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+</script>
+<script src="attributes.js"></script>
+<script src="characterData.js"></script>
+<script src="mixed.js"></script>
+<div id="mocha"></div>
+<script>
+mocha.run();
+</script>
