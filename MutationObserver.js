@@ -202,20 +202,92 @@
   };
 
   /**
-   * Prototype object used when creating new records.
-   * @type {MutationObserverInit}
+   * @param {string} type
+   * @param {Node} target
+   * @constructor
    */
-  var mutationRecordPrototype = {
-    type: null,
-    target: null,
-    addedNodes: null,
-    removedNodes: null,
-    previousSibling: null,
-    nextSibling: null,
-    attributeName: null,
-    attributeNamespace: null,
-    oldValue: null,
+  function MutationRecord(type, target) {
+    this.type = type;
+    this.target = target;
+    this.addedNodes = [];
+    this.removedNodes = [];
+    this.previousSibling = null;
+    this.nextSibling = null;
+    this.attributeName = null;
+    this.attributeNamespace = null;
+    this.oldValue = null;
+  }
+
+  function copyMutationRecord(original) {
+    var record = new MutationRecord(original.type, original.target);
+    record.addedNodes = original.addedNodes.slice();
+    record.removedNodes = original.removedNodes.slice();
+    record.previousSibling = original.previousSibling;
+    record.nextSibling = original.nextSibling;
+    record.attributeName = original.attributeName;
+    record.attributeNamespace = original.attributeNamespace;
+    record.oldValue = original.oldValue;
+    return record;
   };
+
+  // We keep track of the two (possibly one) records used in a single mutation.
+  var currentRecord, recordWithOldValue;
+
+  /**
+   * Creates a record without |oldValue| and caches it as |currentRecord| for
+   * later use.
+   * @param {string} oldValue
+   * @return {MutationRecord}
+   */
+  function getRecord(type, target) {
+    return currentRecord = new MutationRecord(type, target);
+  }
+
+  /**
+   * Gets or creates a record with |oldValue| based in the |currentRecord|
+   * @param {string} oldValue
+   * @return {MutationRecord}
+   */
+  function getRecordWithOldValue(oldValue) {
+    if (recordWithOldValue)
+      return recordWithOldValue;
+    recordWithOldValue = copyMutationRecord(currentRecord);
+    recordWithOldValue.oldValue = oldValue;
+    return recordWithOldValue;
+  }
+
+  function clearRecords() {
+    currentRecord = recordWithOldValue = undefined;
+  }
+
+  /**
+   * @param {MutationRecord} record
+   * @return {boolean} Whether the record represents a record from the current
+   * mutation event.
+   */
+  function recordRepresentsCurrentMutation(record) {
+    return record === recordWithOldValue || record === currentRecord;
+  }
+
+  /**
+   * Selects which record, if any, to replace the last record in the queue.
+   * This returns |null| if no record should be replaced.
+   *
+   * @param {MutationRecord} lastRecord
+   * @param {MutationRecord} newRecord
+   * @param {MutationRecord}
+   */
+  function selectRecord(lastRecord, newRecord) {
+    if (lastRecord === newRecord)
+      return lastRecord;
+
+    // Check if the the record we are adding represents the same record. If
+    // so, we keep the one with the oldValue in it.
+    if (recordWithOldValue && recordRepresentsCurrentMutation(lastRecord))
+      return recordWithOldValue;
+
+    return null;
+  }
 
   /**
    * Class used to represent a registered observer.
@@ -235,17 +307,15 @@
       var records = this.observer.records_;
       var length = records.length;
 
-      // Check if the record we are adding represents the same record. If so,
-      // we keep the one with the oldValue in it.
+      // There are cases where we replace the last record with the new record.
+      // For example if the record represents the same mutation we need to use
+      // the one with the oldValue. If we get same record (this can happen as we
+      // walk up the tree) we ignore the new record.
       if (records.length > 0) {
-        var last = records[length - 1];
-        // The record with the oldValue has it's __proto__ set to the record
-        // without the oldValue.
-        if (record === last || record === Object.getPrototypeOf(last))
-          return;
-
-        if (Object.getPrototypeOf(record) === last) {
-          records[length - 1] = record;
+        var lastRecord = records[length - 1];
+        var recordToReplaceLast = selectRecord(lastRecord, record);
+        if (recordToReplaceLast) {
+          records[length - 1] = recordToReplaceLast;
           return;
         }
       } else {
@@ -258,16 +328,27 @@
     addListeners: function() {
       if (this.options.attributes)
         this.target.addEventListener('DOMAttrModified', this, true);
+
       if (this.options.characterData)
         this.target.addEventListener('DOMCharacterDataModified', this, true);
+
+      if (this.options.childList) {
+        this.target.addEventListener('DOMNodeInserted', this, true);
+        this.target.addEventListener('DOMNodeRemoved', this, true);
+      }
     },
 
     removeListeners: function() {
       if (this.options.attributes)
-        this.target.removeEventListener('DOMAttrModified', this.observer, true);
+        this.target.removeEventListener('DOMAttrModified', this, true);
+
       if (this.options.characterData) {
-        this.target.removeEventListener('DOMCharacterDataModified',
-                                        this.observer, true);
+        this.target.removeEventListener('DOMCharacterDataModified', this, true);
+      }
+
+      if (this.options.childList) {
+        this.target.removeEventListener('DOMNodeInserted', this, true);
+        this.target.removeEventListener('DOMNodeRemoved', this, true);
       }
     },
 
@@ -286,15 +367,12 @@
           var target = e.target;
 
           // 1.
-          var record = Object.create(mutationRecordPrototype);
-          record.type = 'attributes';
-          record.target = target;
+          var record = new getRecord('attributes', target);
           record.attributeName = name;
           record.attributeNamespace = namespace;
 
           // 2.
-          var recordWithOldValue = Object.create(record);
-          recordWithOldValue.oldValue =
+          var oldValue =
               e.attrChange === MutationEvent.ADDITION ? null : e.prevValue;
 
           forEachAncestorAndObserverEnqueueRecord(target, function(options) {
@@ -310,7 +388,7 @@
             }
             // 3.3, 4.4
             if (options.attributeOldValue)
-              return recordWithOldValue;
+              return getRecordWithOldValue(oldValue);
 
             // 3.4, 4.5
             return record;
@@ -323,13 +401,11 @@
           var target = e.target;
 
           // 1.
-          var record = Object.create(mutationRecordPrototype);
-          record.type = 'characterData';
-          record.target = target;
+          var record = getRecord('characterData', target);
 
           // 2.
-          var recordWithOldValue = Object.create(record);
-          recordWithOldValue.oldValue = e.prevValue;
+          var oldValue = e.prevValue;
+
 
           forEachAncestorAndObserverEnqueueRecord(target, function(options) {
             // 3.1, 4.2
@@ -338,14 +414,50 @@
 
             // 3.2, 4.3
             if (options.characterDataOldValue)
-              return recordWithOldValue;
+              return getRecordWithOldValue(oldValue);
 
             // 3.3, 4.4
             return record;
           });
 
           break;
+
+        case 'DOMNodeInserted':
+        case 'DOMNodeRemoved':
+          // http://dom.spec.whatwg.org/#concept-mo-queue-childlist
+          var target = e.relatedNode;
+          var changedNode = e.target;
+          var addedNodes, removedNodes;
+          if (e.type === 'DOMNodeInserted') {
+            addedNodes = [changedNode];
+            removedNodes = [];
+          } else {
+            addedNodes = [];
+            removedNodes = [changedNode];
+          }
+          var previousSibling = changedNode.previousSibling;
+          var nextSibling = changedNode.nextSibling;
+
+          // 1.
+          var record = getRecord('childList', target);
+          record.addedNodes = addedNodes;
+          record.removedNodes = removedNodes;
+          record.previousSibling = previousSibling;
+          record.nextSibling = nextSibling;
+
+          forEachAncestorAndObserverEnqueueRecord(target, function(options) {
+            // 2.1, 3.2
+            if (!options.childList)
+              return;
+
+            // 2.2, 3.3
+            return record;
+          });
+
+          // break;
       }
+
+      clearRecords();
     }
   };
 

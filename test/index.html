@@ -10,28 +10,59 @@ license that can be found in the LICENSE file.
 <script src="../../third_party/mocha/mocha.js"></script>
 <script src="../../ShadowDOM/sidetable.js"></script>
 <script src="../MutationObserver.js"></script>
-
-<script>mocha.setup('tdd')</script>
 <script>
 
-function expectRecord(record, expected) {
-  expect(record.type).to.be(expected.type === undefined ? null : expected.type);
-  expect(record.target).to.be(expected.target === undefined ? null : expected.target);
-  // expect(record.addedNodes).to.be(expected.addedNodes === undefined ? null : expected.addedNodes);
-  // expect(record.removedNodes).to.be(expected.removedNodes === undefined ? null : expected.removedNodes);
-  expect(record.previousSibling).to.be(expected.previousSibling === undefined ? null : expected.previousSibling);
-  expect(record.nextSibling).to.be(expected.nextSibling === undefined ? null : expected.nextSibling);
-  expect(record.attributeName).to.be(expected.attributeName === undefined ? null : expected.attributeName);
-  expect(record.attributeNamespace).to.be(expected.attributeNamespace === undefined ? null : expected.attributeNamespace);
-  expect(record.oldValue).to.be(expected.oldValue === undefined ? null : expected.oldValue);
-}
+mocha.setup({
+  ui: 'tdd',
+  ignoreLeaks: true
+});
 
-if (/native/.test(location.search))
-  JsMutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+var expectRecord = (function() {
+  var useNative = /native/.test(location.search);
+  var isWebKit = /WebKit/.test(navigator.userAgent);
+  var slice = Array.prototype.slice.call.bind(Array.prototype.slice);
+
+  if (useNative) {
+    JsMutationObserver =
+        window.MutationObserver || window.WebKitMutationObserver;
+  }
+
+  // addedNodes/removedNodes are broken in WebKit.
+  // https://bugs.webkit.org/show_bug.cgi?id=98921
+  function fixWebKitNodes(nodes) {
+    if (nodes === null && useNative && isWebKit)
+      return [];
+    return nodes;
+  }
+
+  return function expectRecord(record, expected) {
+    expect(record.type).to.be(
+        expected.type === undefined ? null : expected.type);
+    expect(record.target).to.be(
+        expected.target === undefined ? null : expected.target);
+    expect(slice(fixWebKitNodes(record.addedNodes))).to.eql(
+        expected.addedNodes === undefined ? [] : expected.addedNodes);
+    expect(slice(fixWebKitNodes(record.removedNodes))).to.eql(
+        expected.removedNodes === undefined ? [] : expected.removedNodes);
+    expect(record.previousSibling).to.be(
+        expected.previousSibling === undefined ?
+            null : expected.previousSibling);
+    expect(record.nextSibling).to.be(
+        expected.nextSibling === undefined ? null : expected.nextSibling);
+    expect(record.attributeName).to.be(
+        expected.attributeName === undefined ? null : expected.attributeName);
+    expect(record.attributeNamespace).to.be(
+        expected.attributeNamespace === undefined ?
+            null : expected.attributeNamespace);
+    expect(record.oldValue).to.be(
+        expected.oldValue === undefined ? null : expected.oldValue);
+  };
+})();
 
 </script>
 <script src="attributes.js"></script>
 <script src="characterData.js"></script>
+<script src="childList.js"></script>
 <script src="mixed.js"></script>
 <script src="callback.js"></script>
 <div id="mocha"></div>
