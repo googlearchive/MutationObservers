@@ -30,14 +30,111 @@ suite('JsMutationObserver childList', function() {
     });
   }
 
+  test('appendChild', function() {
+    var div = document.createElement('div');
+    var observer = new JsMutationObserver(function() {});
+    observer.observe(div, {
+      childList: true
+    });
+    var a = document.createElement('a');
+    var b = document.createElement('b');
+
+    div.appendChild(a);
+    div.appendChild(b);
+
+    var records = observer.takeRecords();
+    expect(records.length).to.be(2);
+
+    expectRecord(records[0], {
+      type: 'childList',
+      target: div,
+      addedNodes: [a]
+    });
+
+    expectRecord(records[1], {
+      type: 'childList',
+      target: div,
+      addedNodes: [b],
+      previousSibling: a
+    });
+  });
+
+  test('insertBefore', function() {
+    var div = document.createElement('div');
+    var a = document.createElement('a');
+    var b = document.createElement('b');
+    var c = document.createElement('c');
+    div.appendChild(a);
+
+    var observer = new JsMutationObserver(function() {});
+    observer.observe(div, {
+      childList: true
+    });
+
+    div.insertBefore(b, a);
+    div.insertBefore(c, a);
+
+    var records = observer.takeRecords();
+    expect(records.length).to.be(2);
+
+    expectRecord(records[0], {
+      type: 'childList',
+      target: div,
+      addedNodes: [b],
+      nextSibling: a
+    });
+
+    expectRecord(records[1], {
+      type: 'childList',
+      target: div,
+      addedNodes: [c],
+      nextSibling: a,
+      previousSibling: b
+    });
+  });
+
+
+  test('removeChild', function() {
+    var div = document.createElement('div');
+    var a = div.appendChild(document.createElement('a'));
+    var b = div.appendChild(document.createElement('b'));
+    var c = div.appendChild(document.createElement('c'));
+
+    var observer = new JsMutationObserver(function() {});
+    observer.observe(div, {
+      childList: true
+    });
+
+    div.removeChild(b);
+    div.removeChild(a);
+
+    var records = observer.takeRecords();
+    expect(records.length).to.be(2);
+
+    expectRecord(records[0], {
+      type: 'childList',
+      target: div,
+      removedNodes: [b],
+      nextSibling: c,
+      previousSibling: a
+    });
+
+    expectRecord(records[1], {
+      type: 'childList',
+      target: div,
+      removedNodes: [a],
+      nextSibling: c
+    });
+  });
+
   test('Direct children', function() {
     var div = document.createElement('div');
     var observer = new JsMutationObserver(function() {});
     observer.observe(div, {
       childList: true
     });
-    var a = document.createTextNode('a');
-    var b = document.createTextNode('b');
+    var a = document.createElement('a');
+    var b = document.createElement('b');
 
     div.appendChild(a);
     div.insertBefore(b, a);

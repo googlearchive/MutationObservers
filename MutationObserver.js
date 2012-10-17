@@ -66,7 +66,7 @@
       // 2.1, 2.2
       var queue = observer.takeRecords();
       // 2.3. Remove all transient registered observers whose observer is mo.
-      // TODO(arv): Implement
+      removeTransientObserversFor(observer);
 
       // 2.4
       if (queue.length) {
@@ -78,6 +78,18 @@
     // 3.
     if (anyNonEmpty)
       dispatchCallbacks();
+  }
+
+  function removeTransientObserversFor(observer) {
+    observer.nodes_.forEach(function(node) {
+      var registrations = registrationsTable.get(node);
+      if (!registrations)
+        return;
+      registrations.forEach(function(registration) {
+        if (registration.observer === observer)
+          registration.removeTransientObservers();
+      });
+    });
   }
 
   /**
@@ -300,6 +312,7 @@
     this.observer = observer;
     this.target = target;
     this.options = options;
+    this.transientObservedNodes = [];
   }
 
   Registration.prototype = {
@@ -326,30 +339,83 @@
     },
 
     addListeners: function() {
-      if (this.options.attributes)
-        this.target.addEventListener('DOMAttrModified', this, true);
+      this.addListeners_(this.target);
+    },
 
-      if (this.options.characterData)
-        this.target.addEventListener('DOMCharacterDataModified', this, true);
+    addListeners_: function(node) {
+      var options = this.options;
+      if (options.attributes)
+        node.addEventListener('DOMAttrModified', this, true);
 
-      if (this.options.childList) {
-        this.target.addEventListener('DOMNodeInserted', this, true);
-        this.target.addEventListener('DOMNodeRemoved', this, true);
-      }
+      if (options.characterData)
+        node.addEventListener('DOMCharacterDataModified', this, true);
+
+      if (options.childList)
+        node.addEventListener('DOMNodeInserted', this, true);
+
+      if (options.childList || options.subtree)
+        node.addEventListener('DOMNodeRemoved', this, true);
     },
 
     removeListeners: function() {
-      if (this.options.attributes)
-        this.target.removeEventListener('DOMAttrModified', this, true);
+      this.removeListeners_(this.target);
+    },
 
-      if (this.options.characterData) {
-        this.target.removeEventListener('DOMCharacterDataModified', this, true);
-      }
+    removeListeners_: function(node) {
+      var options = this.options;
+      if (options.attributes)
+        node.removeEventListener('DOMAttrModified', this, true);
 
-      if (this.options.childList) {
-        this.target.removeEventListener('DOMNodeInserted', this, true);
-        this.target.removeEventListener('DOMNodeRemoved', this, true);
-      }
+      if (options.characterData)
+        node.removeEventListener('DOMCharacterDataModified', this, true);
+
+      if (options.childList)
+        node.removeEventListener('DOMNodeInserted', this, true);
+
+      if (options.childList || options.subtree)
+        node.removeEventListener('DOMNodeRemoved', this, true);
+    },
+
+    /**
+     * Adds a transient observer on node. The transient observer gets removed
+     * next time we deliver the change records.
+     * @param {Node} node
+     */
+    addTransientObserver: function(node) {
+      // Don't add transient observers on the target itself. We already have all
+      // the required listeners set up on the target.
+      if (node === this.target)
+        return;
+
+      this.addListeners_(node);
+      this.transientObservedNodes.push(node);
+      var registrations = registrationsTable.get(node);
+      if (!registrations)
+        registrationsTable.set(node, registrations = []);
+
+      // We know that registrations does not contain this because we already
+      // checked if node === this.target.
+      registrations.push(this);
+    },
+
+    removeTransientObservers: function() {
+      var transientObservedNodes = this.transientObservedNodes;
+      this.transientObservedNodes = [];
+
+      transientObservedNodes.forEach(function(node) {
+        // Transient observers are never added to the target.
+        this.removeListeners_(node);
+
+        var registrations = registrationsTable.get(node);
+        for (var i = 0; i < registrations.length; i++) {
+          if (registrations[i] === this) {
+            registrations.splice(i, 1);
+            // Each node can only have one registered observer associated with
+            // this observer.
+            break;
+          }
+        }
+      }, this);
     },
 
     handleEvent: function(e) {
@@ -422,8 +488,10 @@
 
           break;
 
-        case 'DOMNodeInserted':
         case 'DOMNodeRemoved':
+          this.addTransientObserver(e.target);
+          // Fall through.
+        case 'DOMNodeInserted':
           // http://dom.spec.whatwg.org/#concept-mo-queue-childlist
           var target = e.relatedNode;
           var changedNode = e.target;
@@ -432,6 +500,7 @@
             addedNodes = [changedNode];
             removedNodes = [];
           } else {
+
             addedNodes = [];
             removedNodes = [changedNode];
           }
@@ -454,7 +523,6 @@
             return record;
           });
 
-          // break;
       }
 
       clearRecords();
