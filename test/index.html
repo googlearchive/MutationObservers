@@ -6,7 +6,7 @@ license that can be found in the LICENSE file.
 -->
 <meta charset="utf-8">
 <link rel="stylesheet" href="../../third_party/mocha/mocha.css">
-<script src="../../third_party/expect.js/expect.js"></script>
+<script src="../../third_party/chai/chai.js"></script>
 <script src="../../third_party/mocha/mocha.js"></script>
 <script src="../../ShadowDOM/sidetable.js"></script>
 <script src="../MutationObserver.js"></script>
@@ -16,6 +16,8 @@ mocha.setup({
   ui: 'tdd',
   ignoreLeaks: true
 });
+
+var assert = chai.assert;
 
 var expectRecord = (function() {
   var useNative = /native/.test(location.search);
@@ -36,25 +38,25 @@ var expectRecord = (function() {
   }
 
   return function expectRecord(record, expected) {
-    expect(record.type).to.be(
+    assert.strictEqual(record.type,
         expected.type === undefined ? null : expected.type);
-    expect(record.target).to.be(
+    assert.strictEqual(record.target,
         expected.target === undefined ? null : expected.target);
-    expect(slice(fixWebKitNodes(record.addedNodes))).to.eql(
+    assert.deepEqual(fixWebKitNodes(record.addedNodes),
         expected.addedNodes === undefined ? [] : expected.addedNodes);
-    expect(slice(fixWebKitNodes(record.removedNodes))).to.eql(
+    assert.deepEqual(fixWebKitNodes(record.removedNodes),
         expected.removedNodes === undefined ? [] : expected.removedNodes);
-    expect(record.previousSibling).to.be(
+    assert.strictEqual(record.previousSibling,
         expected.previousSibling === undefined ?
             null : expected.previousSibling);
-    expect(record.nextSibling).to.be(
+    assert.strictEqual(record.nextSibling,
         expected.nextSibling === undefined ? null : expected.nextSibling);
-    expect(record.attributeName).to.be(
+    assert.strictEqual(record.attributeName,
         expected.attributeName === undefined ? null : expected.attributeName);
-    expect(record.attributeNamespace).to.be(
+    assert.strictEqual(record.attributeNamespace,
         expected.attributeNamespace === undefined ?
             null : expected.attributeNamespace);
-    expect(record.oldValue).to.be(
+    assert.strictEqual(record.oldValue,
         expected.oldValue === undefined ? null : expected.oldValue);
   };
 })();

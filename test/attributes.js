@@ -16,7 +16,7 @@ suite('JsMutationObserver attributes', function() {
     div.setAttribute('a', 'B');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -43,7 +43,7 @@ suite('JsMutationObserver attributes', function() {
     div.setAttribute('a', 'B');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -73,7 +73,7 @@ suite('JsMutationObserver attributes', function() {
     child.setAttribute('a', 'B');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(0);
+    assert.strictEqual(records.length, 0);
   });
 
   test('attr change, subtree', function() {
@@ -89,7 +89,7 @@ suite('JsMutationObserver attributes', function() {
     child.setAttribute('a', 'B');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -122,7 +122,7 @@ suite('JsMutationObserver attributes', function() {
     div.setAttribute('b', 'B');
 
     var records = observer1.takeRecords();
-    expect(records.length).to.be(3);
+    assert.strictEqual(records.length, 3);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -142,7 +142,7 @@ suite('JsMutationObserver attributes', function() {
     });
 
     records = observer2.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -170,7 +170,7 @@ suite('JsMutationObserver attributes', function() {
     child.setAttribute('b', 'B');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(3);
+    assert.strictEqual(records.length, 3);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -206,7 +206,7 @@ suite('JsMutationObserver attributes', function() {
     div.setAttribute('b', 'B');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -226,12 +226,12 @@ suite('JsMutationObserver attributes', function() {
 
     observer.disconnect();
     var records = observer.takeRecords();
-    expect(records.length).to.be(0);
+    assert.strictEqual(records.length, 0);
 
     div.setAttribute('b', 'B');
 
     records = observer.takeRecords();
-    expect(records.length).to.be(0);
+    assert.strictEqual(records.length, 0);
   });
 
   test('disconnect should not affect other observers', function() {
@@ -249,10 +249,10 @@ suite('JsMutationObserver attributes', function() {
 
     observer1.disconnect();
     var records1 = observer1.takeRecords();
-    expect(records1.length).to.be(0);
+    assert.strictEqual(records1.length, 0);
 
     var records2 = observer2.takeRecords();
-    expect(records2.length).to.be(1);
+    assert.strictEqual(records2.length, 1);
     expectRecord(records2[0], {
       type: 'attributes',
       target: div,
@@ -262,10 +262,10 @@ suite('JsMutationObserver attributes', function() {
     div.setAttribute('b', 'B');
 
     records1 = observer1.takeRecords();
-    expect(records1.length).to.be(0);
+    assert.strictEqual(records1.length, 0);
 
     records2 = observer2.takeRecords();
-    expect(records2.length).to.be(1);
+    assert.strictEqual(records2.length, 1);
     expectRecord(records2[0], {
       type: 'attributes',
       target: div,

@@ -18,7 +18,7 @@ suite('JsMutationObserver transient', function() {
     child.setAttribute('a', 'A');
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -30,7 +30,7 @@ suite('JsMutationObserver transient', function() {
     child.setAttribute('b', 'B');
 
     records = observer.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'attributes',
@@ -49,7 +49,7 @@ suite('JsMutationObserver transient', function() {
       if (i > 1)
         expect().fail();
 
-      expect(records.length).to.be(1);
+      assert.strictEqual(records.length, 1);
 
       expectRecord(records[0], {
         type: 'attributes',
@@ -61,7 +61,7 @@ suite('JsMutationObserver transient', function() {
       // The transient observers are removed before the callback is called.
       child.setAttribute('b', 'B');
       records = observer.takeRecords();
-      expect(records.length).to.be(0);
+      assert.strictEqual(records.length, 0);
 
       cont();
     });
@@ -84,7 +84,7 @@ suite('JsMutationObserver transient', function() {
       if (i > 1)
         expect().fail();
 
-      expect(records.length).to.be(1);
+      assert.strictEqual(records.length, 1);
 
       expectRecord(records[0], {
         type: 'attributes',
@@ -111,7 +111,7 @@ suite('JsMutationObserver transient', function() {
         if (i > 2)
           expect().fail();
 
-        expect(records.length).to.be(1);
+        assert.strictEqual(records.length, 1);
 
         expectRecord(records[0], {
           type: 'attributes',
@@ -145,7 +145,7 @@ suite('JsMutationObserver transient', function() {
     child.data = 'changed';
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'characterData',
@@ -155,7 +155,7 @@ suite('JsMutationObserver transient', function() {
     child.data += ' again';
 
     records = observer.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'characterData',
@@ -172,7 +172,7 @@ suite('JsMutationObserver transient', function() {
       if (i > 1)
         expect().fail();
 
-      expect(records.length).to.be(1);
+      assert.strictEqual(records.length, 1);
 
       expectRecord(records[0], {
         type: 'characterData',
@@ -182,7 +182,7 @@ suite('JsMutationObserver transient', function() {
       // The transient observers are removed before the callback is called.
       child.data += ' again';
       records = observer.takeRecords();
-      expect(records.length).to.be(0);
+      assert.strictEqual(records.length, 0);
 
       cont();
     });
@@ -206,7 +206,7 @@ suite('JsMutationObserver transient', function() {
     var grandChild = child.appendChild(document.createElement('span'));
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -223,7 +223,7 @@ suite('JsMutationObserver transient', function() {
     child.removeChild(grandChild);
 
     records = observer.takeRecords();
-    expect(records.length).to.be(1);
+    assert.strictEqual(records.length, 1);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -241,7 +241,7 @@ suite('JsMutationObserver transient', function() {
       if (i > 1)
         expect().fail();
 
-      expect(records.length).to.be(2);
+      assert.strictEqual(records.length, 2);
 
       expectRecord(records[0], {
         type: 'childList',
@@ -259,7 +259,7 @@ suite('JsMutationObserver transient', function() {
       child.removeChild(grandChild);
 
       records = observer.takeRecords();
-      expect(records.length).to.be(0);
+      assert.strictEqual(records.length, 0);
 
       cont();
     });

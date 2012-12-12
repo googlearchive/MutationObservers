@@ -22,10 +22,10 @@ suite('JsMutationObserver childList', function() {
     });
   }
 
-  function expectAll(records, expectedProperties) {
+  function assertAll(records, expectedProperties) {
     records.forEach(function(record) {
       for (var propertyName in expectedProperties) {
-        expect(record[propertyName]).to.be(expectedProperties[propertyName]);
+        assert.strictEqual(record[propertyName], expectedProperties[propertyName]);
       }
     });
   }
@@ -43,7 +43,7 @@ suite('JsMutationObserver childList', function() {
     div.appendChild(b);
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -75,7 +75,7 @@ suite('JsMutationObserver childList', function() {
     div.insertBefore(c, a);
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -109,7 +109,7 @@ suite('JsMutationObserver childList', function() {
     div.removeChild(a);
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -141,7 +141,7 @@ suite('JsMutationObserver childList', function() {
     div.removeChild(b);
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(3);
+    assert.strictEqual(records.length, 3);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -179,7 +179,7 @@ suite('JsMutationObserver childList', function() {
     child.removeChild(b);
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(3);
+    assert.strictEqual(records.length, 3);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -221,7 +221,7 @@ suite('JsMutationObserver childList', function() {
     div.appendChild(b);
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'childList',
@@ -256,9 +256,9 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    expect(addedNodes).to.be.eql([b, c, d]);
-    expect(removedNodes).to.be.eql([]);
-    expectAll(records, {
+    assert.deepEqual(addedNodes, [b, c, d]);
+    assert.deepEqual(removedNodes, []);
+    assertAll(records, {
       type: 'childList',
       target: div
     });
@@ -283,9 +283,9 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    expect(addedNodes).to.be.eql([b, c, d]);
-    expect(removedNodes).to.be.eql([]);
-    expectAll(records, {
+    assert.deepEqual(addedNodes, [b, c, d]);
+    assert.deepEqual(removedNodes, []);
+    assertAll(records, {
       type: 'childList',
       target: div
     });
@@ -310,9 +310,9 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    expect(addedNodes).to.be.eql([c, d]);
-    expect(removedNodes).to.be.eql([]);
-    expectAll(records, {
+    assert.deepEqual(addedNodes, [c, d]);
+    assert.deepEqual(removedNodes, []);
+    assertAll(records, {
       type: 'childList',
       target: div
     });
@@ -334,9 +334,9 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    expect(addedNodes).to.be.eql([]);
-    expect(removedNodes).to.be.eql([a, b, c]);
-    expectAll(records, {
+    assert.deepEqual(addedNodes, []);
+    assert.deepEqual(removedNodes, [a, b, c]);
+    assertAll(records, {
       type: 'childList',
       target: div
     });
@@ -359,9 +359,9 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    expect(addedNodes).to.be.eql([c, d]);
-    expect(removedNodes).to.be.eql([a, b]);
-    expectAll(records, {
+    assert.deepEqual(addedNodes, [c, d]);
+    assert.deepEqual(removedNodes, [a, b]);
+    assertAll(records, {
       type: 'childList',
       target: div
     });

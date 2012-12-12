@@ -9,7 +9,7 @@ suite('JsMutationObserver callback', function() {
   test('One observer, two attribute changes', function(cont) {
     var div = document.createElement('div');
     var observer = new JsMutationObserver(function(records) {
-      expect(records.length).to.be(2);
+      assert.strictEqual(records.length, 2);
 
       expectRecord(records[0], {
         type: 'attributes',
@@ -39,7 +39,7 @@ suite('JsMutationObserver callback', function() {
     var div = document.createElement('div');
     var i = 0;
     var observer = new JsMutationObserver(function(records) {
-      expect(records.length).to.be(1);
+      assert.strictEqual(records.length, 1);
 
       if (i === 0) {
         expectRecord(records[0], {
