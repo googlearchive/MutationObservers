@@ -256,8 +256,8 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    assert.deepEqual(addedNodes, [b, c, d]);
-    assert.deepEqual(removedNodes, []);
+    assertArrayEqual(addedNodes, [b, c, d]);
+    assertArrayEqual(removedNodes, []);
     assertAll(records, {
       type: 'childList',
       target: div
@@ -283,8 +283,8 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    assert.deepEqual(addedNodes, [b, c, d]);
-    assert.deepEqual(removedNodes, []);
+    assertArrayEqual(addedNodes, [b, c, d]);
+    assertArrayEqual(removedNodes, []);
     assertAll(records, {
       type: 'childList',
       target: div
@@ -310,8 +310,8 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    assert.deepEqual(addedNodes, [c, d]);
-    assert.deepEqual(removedNodes, []);
+    assertArrayEqual(addedNodes, [c, d]);
+    assertArrayEqual(removedNodes, []);
     assertAll(records, {
       type: 'childList',
       target: div
@@ -334,8 +334,8 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    assert.deepEqual(addedNodes, []);
-    assert.deepEqual(removedNodes, [a, b, c]);
+    assertArrayEqual(addedNodes, []);
+    assertArrayEqual(removedNodes, [a, b, c]);
     assertAll(records, {
       type: 'childList',
       target: div
@@ -359,8 +359,8 @@ suite('JsMutationObserver childList', function() {
     var records = observer.takeRecords();
     mergeRecords(records);
 
-    assert.deepEqual(addedNodes, [c, d]);
-    assert.deepEqual(removedNodes, [a, b]);
+    assertArrayEqual(addedNodes, [c, d]);
+    assertArrayEqual(removedNodes, [a, b]);
     assertAll(records, {
       type: 'childList',
       target: div

@@ -19,6 +19,13 @@ mocha.setup({
 
 var assert = chai.assert;
 
+function assertArrayEqual(a, b, msg) {
+  assert.equal(a.length, b.length, msg);
+  for (var i = 0; i < a.length; i++) {
+    assert.equal(a[i], b[i], msg);
+  }
+}
+
 var expectRecord = (function() {
   var useNative = /native/.test(location.search);
   var isWebKit = /WebKit/.test(navigator.userAgent);
@@ -42,9 +49,9 @@ var expectRecord = (function() {
         expected.type === undefined ? null : expected.type);
     assert.strictEqual(record.target,
         expected.target === undefined ? null : expected.target);
-    assert.deepEqual(fixWebKitNodes(record.addedNodes),
+    assertArrayEqual(fixWebKitNodes(record.addedNodes),
         expected.addedNodes === undefined ? [] : expected.addedNodes);
-    assert.deepEqual(fixWebKitNodes(record.removedNodes),
+    assertArrayEqual(fixWebKitNodes(record.removedNodes),
         expected.removedNodes === undefined ? [] : expected.removedNodes);
     assert.strictEqual(record.previousSibling,
         expected.previousSibling === undefined ?
