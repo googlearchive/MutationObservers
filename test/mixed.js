@@ -19,7 +19,7 @@ suite('JsMutationObserver mixed types', function() {
     div.firstChild.data = 'changed';
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'attributes',

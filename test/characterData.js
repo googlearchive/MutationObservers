@@ -16,7 +16,7 @@ suite('JsMutationObserver characterData', function() {
     text.data = 'ghi';
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'characterData',
@@ -39,7 +39,7 @@ suite('JsMutationObserver characterData', function() {
     text.data = 'ghi';
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'characterData',
@@ -65,7 +65,7 @@ suite('JsMutationObserver characterData', function() {
     text.data = 'ghi';
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(0);
+    assert.strictEqual(records.length, 0);
   });
 
   test('characterData change in subtree',
@@ -81,7 +81,7 @@ suite('JsMutationObserver characterData', function() {
     text.data = 'ghi';
 
     var records = observer.takeRecords();
-    expect(records.length).to.be(2);
+    assert.strictEqual(records.length, 2);
 
     expectRecord(records[0], {
       type: 'characterData',
