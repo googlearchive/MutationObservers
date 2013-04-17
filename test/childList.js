@@ -6,9 +6,16 @@
 
 suite('JsMutationObserver childList', function() {
 
+  var testDiv;
+
+  teardown(function() {
+    document.body.removeChild(testDiv);
+  });
+
   var addedNodes, removedNodes;
 
   setup(function() {
+    testDiv = document.body.appendChild(document.createElement('div'));
     addedNodes = [];
     removedNodes = [];
   });
@@ -95,7 +102,7 @@ suite('JsMutationObserver childList', function() {
 
 
   test('removeChild', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var a = div.appendChild(document.createElement('a'));
     var b = div.appendChild(document.createElement('b'));
     var c = div.appendChild(document.createElement('c'));
@@ -128,7 +135,7 @@ suite('JsMutationObserver childList', function() {
   });
 
   test('Direct children', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var observer = new JsMutationObserver(function() {});
     observer.observe(div, {
       childList: true
@@ -238,7 +245,7 @@ suite('JsMutationObserver childList', function() {
   });
 
   test('Append multiple at once at the end', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var a = div.appendChild(document.createTextNode('a'));
 
     var observer = new JsMutationObserver(function() {});
@@ -265,7 +272,7 @@ suite('JsMutationObserver childList', function() {
   });
 
   test('Append multiple at once at the front', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var a = div.appendChild(document.createTextNode('a'));
 
     var observer = new JsMutationObserver(function() {});
@@ -292,7 +299,7 @@ suite('JsMutationObserver childList', function() {
   });
 
   test('Append multiple at once in the middle', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var a = div.appendChild(document.createTextNode('a'));
     var b = div.appendChild(document.createTextNode('b'));
 
@@ -319,7 +326,7 @@ suite('JsMutationObserver childList', function() {
   });
 
   test('Remove all children', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var a = div.appendChild(document.createTextNode('a'));
     var b = div.appendChild(document.createTextNode('b'));
     var c = div.appendChild(document.createTextNode('c'));
@@ -343,7 +350,7 @@ suite('JsMutationObserver childList', function() {
   });
 
   test('Replace all children using innerHTML', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var a = div.appendChild(document.createTextNode('a'));
     var b = div.appendChild(document.createTextNode('b'));
 

@@ -6,6 +6,16 @@
 
 suite('JsMutationObserver characterData', function() {
 
+  var testDiv;
+
+  setup(function() {
+    testDiv = document.body.appendChild(document.createElement('div'));
+  });
+
+  teardown(function() {
+    document.body.removeChild(testDiv);
+  });
+
   test('characterData', function() {
     var text = document.createTextNode('abc');
     var observer = new JsMutationObserver(function() {});
@@ -29,7 +39,7 @@ suite('JsMutationObserver characterData', function() {
   });
 
   test('characterData with old value', function() {
-    var text = document.createTextNode('abc');
+    var text = testDiv.appendChild(document.createTextNode('abc'));
     var observer = new JsMutationObserver(function() {});
     observer.observe(text, {
       characterData: true,
