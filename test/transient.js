@@ -6,8 +6,18 @@
 
 suite('JsMutationObserver transient', function() {
 
+  var testDiv;
+
+  setup(function() {
+    testDiv = document.body.appendChild(document.createElement('div'));
+  });
+
+  teardown(function() {
+    document.body.removeChild(testDiv);
+  });
+
   test('attr', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var child = div.appendChild(document.createElement('div'));
     var observer = new JsMutationObserver(function() {});
     observer.observe(div, {
@@ -41,7 +51,7 @@ suite('JsMutationObserver transient', function() {
   });
 
   test('attr callback', function(cont) {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var child = div.appendChild(document.createElement('div'));
     var i = 0;
     var observer = new JsMutationObserver(function(records) {
@@ -76,7 +86,7 @@ suite('JsMutationObserver transient', function() {
   });
 
   test('attr, make sure transient gets removed', function(cont) {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var child = div.appendChild(document.createElement('div'));
     var i = 0;
     var observer = new JsMutationObserver(function(records) {
@@ -195,7 +205,7 @@ suite('JsMutationObserver transient', function() {
   });
 
   test('childList', function() {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var child = div.appendChild(document.createElement('div'));
     var observer = new JsMutationObserver(function() {});
     observer.observe(div, {
@@ -233,7 +243,7 @@ suite('JsMutationObserver transient', function() {
   });
 
   test('childList callback', function(cont) {
-    var div = document.createElement('div');
+    var div = testDiv.appendChild(document.createElement('div'));
     var child = div.appendChild(document.createElement('div'));
     var i = 0;
     var observer = new JsMutationObserver(function(records) {
