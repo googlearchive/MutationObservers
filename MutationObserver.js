@@ -6,7 +6,7 @@
 
 (function(global) {
 
-  var registrationsTable = new SideTable('registrations');
+  var registrationsTable = new SideTable();
 
   // We use setImmediate or postMessage for our future callback.
   var setImmediate = window.msSetImmediate;
