@@ -48,6 +48,14 @@
     }
   }
 
+  function wrapIfNeeded(node) {
+    if (!window.ShadowDOMPolyfill)
+      return node;
+    if (node instanceof window.ShadowDOMPolyfill.wrappers.Node)
+      return node;
+    return window.ShadowDOMPolyfill.wrap(node);
+  }
+
   function dispatchCallbacks() {
     // http://dom.spec.whatwg.org/#mutation-observers
 
@@ -141,6 +149,8 @@
 
   JsMutationObserver.prototype = {
     observe: function(target, options) {
+      target = wrapIfNeeded(target);
+
       // 1.1
       if (!options.childList && !options.attributes && !options.characterData ||
 
@@ -494,6 +504,10 @@
         case 'DOMNodeInserted':
           // http://dom.spec.whatwg.org/#concept-mo-queue-childlist
           var target = e.relatedNode;
+
+          // https://github.com/toolkitchen/ShadowDOM/issues/141
+          target = wrapIfNeeded(target);
+
           var changedNode = e.target;
           var addedNodes, removedNodes;
           if (e.type === 'DOMNodeInserted') {
