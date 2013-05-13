@@ -48,6 +48,12 @@
     }
   }
 
+  function wrapIfNeeded(node) {
+    return window.ShadowDOMPolyfill &&
+        window.ShadowDOMPolyfill.wrapIfNeeded(node) ||
+        node;
+  }
+
   function dispatchCallbacks() {
     // http://dom.spec.whatwg.org/#mutation-observers
 
@@ -141,6 +147,8 @@
 
   JsMutationObserver.prototype = {
     observe: function(target, options) {
+      target = wrapIfNeeded(target);
+
       // 1.1
       if (!options.childList && !options.attributes && !options.characterData ||
 
