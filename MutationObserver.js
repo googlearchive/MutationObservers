@@ -49,11 +49,9 @@
   }
 
   function wrapIfNeeded(node) {
-    if (!window.ShadowDOMPolyfill)
-      return node;
-    if (node instanceof window.ShadowDOMPolyfill.wrappers.Node)
-      return node;
-    return window.ShadowDOMPolyfill.wrap(node);
+    return window.ShadowDOMPolyfill &&
+        window.ShadowDOMPolyfill.wrapIfNeeded(node) ||
+        node;
   }
 
   function dispatchCallbacks() {
@@ -504,10 +502,6 @@
         case 'DOMNodeInserted':
           // http://dom.spec.whatwg.org/#concept-mo-queue-childlist
           var target = e.relatedNode;
-
-          // https://github.com/toolkitchen/ShadowDOM/issues/141
-          target = wrapIfNeeded(target);
-
           var changedNode = e.target;
           var addedNodes, removedNodes;
           if (e.type === 'DOMNodeInserted') {
