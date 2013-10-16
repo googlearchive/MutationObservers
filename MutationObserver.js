@@ -6,7 +6,7 @@
 
 (function(global) {
 
-  var registrationsTable = new SideTable();
+  var registrationsTable = new WeakMap();
 
   // We use setImmediate or postMessage for our future callback.
   var setImmediate = window.msSetImmediate;
