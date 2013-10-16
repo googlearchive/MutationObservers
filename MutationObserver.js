@@ -6,7 +6,7 @@
 
 (function(global) {
 
-  var registrationsTable = new SideTable();
+  var registrationsTable = new WeakMap();
 
   // We use setImmediate or postMessage for our future callback.
   var setImmediate = window.msSetImmediate;
@@ -538,5 +538,13 @@
   };
 
   global.JsMutationObserver = JsMutationObserver;
+
+  // Provide unprefixed MutationObserver with native or JS implementation
+  if (!global.MutationObserver && global.WebKitMutationObserver)
+    global.MutationObserver = global.WebKitMutationObserver;
+
+  if (!global.MutationObserver)
+    global.MutationObserver = JsMutationObserver;
+
 
 })(this);
