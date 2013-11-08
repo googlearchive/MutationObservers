@@ -1,0 +1,22 @@
+{
+  "name": "MutationObservers",
+  "version": "0.0.20131107",
+  "homepage": "https://github.com/Polymer/MutationObservers",
+  "authors": [
+    "The Polymer Authors"
+  ],
+  "description": "Mutation Observers Polyfill",
+  "main": "MutationObserver.js",
+  "keywords": [
+    "mutationobservers"
+  ],
+  "license": "BSD",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
