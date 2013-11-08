@@ -11,7 +11,7 @@
     "mutationobservers"
   ],
   "dependencies": {
-    "Polymer/WeakMap": ">=0.0.20131107"
+    "WeakMap": "Polymer/WeakMap"
   },
   "license": "BSD",
   "private": true,
