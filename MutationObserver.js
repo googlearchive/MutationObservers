@@ -539,10 +539,6 @@
 
   global.JsMutationObserver = JsMutationObserver;
 
-  // Provide unprefixed MutationObserver with native or JS implementation
-  if (!global.MutationObserver && global.WebKitMutationObserver)
-    global.MutationObserver = global.WebKitMutationObserver;
-
   if (!global.MutationObserver)
     global.MutationObserver = JsMutationObserver;
 
