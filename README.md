@@ -1,3 +1,7 @@
+## DEPRECATED 
+This repo has moved to https://github.com/Polymer/webcomponentsjs
+
+
 MutationObservers
 =================
 
